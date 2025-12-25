@@ -426,7 +426,7 @@ Authorization: Bearer guest-token
 
 ---
 
-### 2.7 Fork食谱（复制到个人）
+### 2.7 Fork食谱（关联到个人）
 
 **接口**: `POST /api/recipes/:id/fork`
 
@@ -438,15 +438,26 @@ Authorization: Bearer guest-token
 |------|------|------|
 | id | number | 系统食谱ID |
 
-**说明**: 将系统食谱复制为个人食谱，自动设置为收藏
+**说明**: 将系统食谱关联到用户（在user_recipes表创建记录），不复制数据
 
 **成功响应**:
 ```json
 {
   "code": 200,
-  "message": "已添加到我的食谱并收藏",
-  "data": { ... }
+  "message": "成功加入我的食谱",
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "recipe_id": 63,
+    "is_favorite": false,
+    "added_at": "2025-01-01T00:00:00.000Z"
+  }
 }
+```
+
+**错误响应**:
+- `400`: 只能Fork系统食谱 / 您已经添加过这个食谱了
+- `404`: Recipe not found
 ```
 
 ---
