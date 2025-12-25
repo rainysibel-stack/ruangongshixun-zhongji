@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的冰箱 - 小小美食家</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f8f9fa;
+        }
+
+        .navbar {
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+        }
+
+        .nav-tabs li {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-tabs li.active {
+            border-bottom: 2px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .container {
+            padding: 1rem;
+        }
+
+        /* 重构冰箱添加食材区域样式（和采购清单添加样式统一） */
+        .quick-add {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .quick-add-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        /* 冰箱添加食材输入区域（和采购清单样式一致） */
+        .fridge-add {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .fridge-add-input {
+            flex: 2;
+            min-width: 150px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            height: 46px;
+        }
+
+        .fridge-add-quantity {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            height: 46px;
+        }
+
+        .fridge-add-btn {
+            flex: 0 0 50px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 80px;
+            height: 46px;
+        }
+
+        .fridge-add-btn:hover {
+            background: #c0392b;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            text-align: center;
+            padding: 0.8rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* 视图容器样式 - 默认隐藏，确保必须选中一个视图 */
+        .view-container {
+            display: none;
+        }
+        /* 激活的视图显示 */
+        .view-container.active {
+            display: block;
+        }
+
+        .category-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .category-title {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        /* 列表视图样式 */
+        .ingredients-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .ingredient-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer; /* 标记可点击 */
+            transition: background 0.2s;
+        }
+
+        .ingredient-list-item:hover {
+            background: #f9f9f9; /*  hover 反馈 */
+        }
+
+        .ingredient-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .ingredient-list-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ingredient-list-icon {
+            width: 40px;
+            height: 40px;
+            background: #f1f1f1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .ingredient-list-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ingredient-list-name {
+            font-weight: bold;
+        }
+
+        .ingredient-list-category {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .ingredient-list-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ingredient-list-quantity {
+            color: #666;
+        }
+
+        .ingredient-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ingredient-card:hover {
+            border-color: #e74c3c;
+            transform: translateY(-2px);
+        }
+
+        .ingredient-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .ingredient-quantity {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* 采购清单样式增强 */
+        .shopping-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 采购清单添加区域 */
+        .shopping-add {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .shopping-add-input {
+            flex: 2;
+            min-width: 150px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            height: 46px;
+        }
+
+        .shopping-add-quantity {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            height: 46px;
+        }
+
+        .shopping-add-btn {
+            flex: 0 0 50px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 80px;
+            height: 46px;
+        }
+
+        .shopping-add-btn:hover {
+            background: #c0392b;
+        }
+
+        .shopping-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .shopping-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 采购清单数量样式 */
+        .shopping-item-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .shopping-item-name {
+            font-weight: 500;
+        }
+
+        .shopping-item-quantity {
+            font-size: 0.8rem;
+            color: #888;
+            background: #f1f1f1;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+        }
+
+        .shopping-item-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .shopping-item button {
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #e74c3c;
+            border-radius: 4px;
+            background: white;
+            color: #e74c3c;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 80px;
+            height: 36px;
+        }
+
+        .shopping-item button:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .shopping-item .delete-btn {
+            border-color: #95a5a6;
+            color: #95a5a6;
+        }
+
+        .shopping-item .delete-btn:hover {
+            background: #95a5a6;
+            color: white;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.8rem;
+            }
+
+            .quick-add, .shopping-section {
+                padding: 0.8rem;
+            }
+
+            .fridge-add, .shopping-add {
+                flex-direction: column;
+            }
+
+            .fridge-add-input, .fridge-add-quantity,
+            .shopping-add-input, .shopping-add-quantity {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .fridge-add-btn, .shopping-add-btn {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .shopping-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+
+            .shopping-item-left {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .shopping-item-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .shopping-item button {
+                flex: 1;
+            }
+
+            .ingredients-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 0.8rem;
+            }
+
+            .ingredient-list-item {
+                padding: 0.8rem;
+            }
+
+            .ingredient-list-left {
+                gap: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .nav-tabs li {
+                flex: 1;
+                text-align: center;
+                min-width: 80px;
+            }
+
+            .view-toggle {
+                flex-direction: row;
+            }
+
+            .toggle-btn {
+                margin-bottom: 0;
+            }
+
+            .ingredients-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <ul class="nav-tabs">
+        <li onclick="window.location.href='我的食谱.html'">我的食谱</li>
+        <li class="active" onclick="window.location.href='我的冰箱.html'">我的冰箱</li>
+        <li onclick="window.location.href='吃什么.html'">吃什么</li>
+        <li onclick="window.location.href='我的.html'">我的</li>
+    </ul>
+</nav>
+
+<div class="container">
+    <!-- 重构后的冰箱添加食材区域（删除快捷添加） -->
+    <div class="quick-add">
+        <div class="quick-add-title">➕ 添加冰箱食材</div>
+
+        <!-- 新的添加食材输入区域（和采购清单样式统一） -->
+        <div class="fridge-add">
+            <input type="text" class="fridge-add-input" id="fridgeIngredientName" placeholder="输入食材名称（如：黄瓜）">
+            <input type="text" class="fridge-add-quantity" id="fridgeIngredientQuantity" placeholder="数量（如：3根）">
+            <button class="fridge-add-btn" onclick="addFridgeIngredient()">添加</button>
+        </div>
+    </div>
+
+    <!-- 视图切换（确保必须选中一个） -->
+    <div class="view-toggle">
+        <div class="toggle-btn active" onclick="switchView('list')">列表视图</div>
+        <div class="toggle-btn" onclick="switchView('category')">分类视图</div>
+    </div>
+
+    <!-- 列表视图容器（默认激活） -->
+    <div id="listView" class="view-container active">
+        <div class="ingredients-list" id="fridgeListContainer">
+            <div class="ingredient-list-item" onclick="editIngredientByName('番茄')">
+                <div class="ingredient-list-left">
+                    <div class="ingredient-list-icon">🍅</div>
+                    <div class="ingredient-list-info">
+                        <div class="ingredient-list-name">番茄</div>
+                        <div class="ingredient-list-category">蔬菜水果</div>
+                    </div>
+                </div>
+                <div class="ingredient-list-right">
+                    <div class="ingredient-list-quantity">2个</div>
+                </div>
+            </div>
+            <div class="ingredient-list-item" onclick="editIngredientByName('土豆')">
+                <div class="ingredient-list-left">
+                    <div class="ingredient-list-icon">🥔</div>
+                    <div class="ingredient-list-info">
+                        <div class="ingredient-list-name">土豆</div>
+                        <div class="ingredient-list-category">蔬菜水果</div>
+                    </div>
+                </div>
+                <div class="ingredient-list-right">
+                    <div class="ingredient-list-quantity">500g</div>
+                </div>
+            </div>
+            <div class="ingredient-list-item" onclick="editIngredientByName('鸡蛋')">
+                <div class="ingredient-list-left">
+                    <div class="ingredient-list-icon">🥚</div>
+                    <div class="ingredient-list-info">
+                        <div class="ingredient-list-name">鸡蛋</div>
+                        <div class="ingredient-list-category">肉禽蛋奶</div>
+                    </div>
+                </div>
+                <div class="ingredient-list-right">
+                    <div class="ingredient-list-quantity">6个</div>
+                </div>
+            </div>
+            <div class="ingredient-list-item" onclick="editIngredientByName('鸡胸肉')">
+                <div class="ingredient-list-left">
+                    <div class="ingredient-list-icon">🍗</div>
+                    <div class="ingredient-list-info">
+                        <div class="ingredient-list-name">鸡胸肉</div>
+                        <div class="ingredient-list-category">肉禽蛋奶</div>
+                    </div>
+                </div>
+                <div class="ingredient-list-right">
+                    <div class="ingredient-list-quantity">300g</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分类视图容器 -->
+    <div id="categoryView" class="view-container">
+        <div class="category-section">
+            <div class="category-title">
+                <span>🥦 蔬菜水果</span>
+                <span class="count" id="vegetableCount">2种</span>
+            </div>
+            <div class="ingredients-grid" id="vegetableGrid">
+                <div class="ingredient-card" onclick="editIngredient(this)">
+                    <div class="ingredient-name">番茄</div>
+                    <div class="ingredient-quantity">2个</div>
+                </div>
+                <div class="ingredient-card" onclick="editIngredient(this)">
+                    <div class="ingredient-name">土豆</div>
+                    <div class="ingredient-quantity">500g</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-title">
+                <span>🥩 肉禽蛋奶</span>
+                <span class="count" id="meatCount">2种</span>
+            </div>
+            <div class="ingredients-grid" id="meatGrid">
+                <div class="ingredient-card" onclick="editIngredient(this)">
+                    <div class="ingredient-name">鸡蛋</div>
+                    <div class="ingredient-quantity">6个</div>
+                </div>
+                <div class="ingredient-card" onclick="editIngredient(this)">
+                    <div class="ingredient-name">鸡胸肉</div>
+                    <div class="ingredient-quantity">300g</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 采购清单 -->
+    <div class="shopping-section">
+        <div class="category-title">
+            <span>🛒 采购清单</span>
+        </div>
+
+        <div class="shopping-add">
+            <input type="text" class="shopping-add-input" id="shoppingName" placeholder="输入食材名称（如：小葱）">
+            <input type="text" class="shopping-add-quantity" id="shoppingQuantity" placeholder="数量（如：200g）">
+            <button class="shopping-add-btn" onclick="addShoppingItem()">添加</button>
+        </div>
+
+        <div id="shoppingList">
+            <div class="shopping-item">
+                <div class="shopping-item-left">
+                    <span class="shopping-item-name">小葱</span>
+                    <span class="shopping-item-quantity">200g</span>
+                </div>
+                <div class="shopping-item-actions">
+                    <button onclick="addToFridge('小葱', '200g')">加入冰箱</button>
+                    <button class="delete-btn" onclick="deleteShoppingItem(this)">删除</button>
+                </div>
+            </div>
+            <div class="shopping-item">
+                <div class="shopping-item-left">
+                    <span class="shopping-item-name">生姜</span>
+                    <span class="shopping-item-quantity">100g</span>
+                </div>
+                <div class="shopping-item-actions">
+                    <button onclick="addToFridge('生姜', '100g')">加入冰箱</button>
+                    <button class="delete-btn" onclick="deleteShoppingItem(this)">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 初始化视图 - 强制默认列表视图，确保必须选中一个
+    document.addEventListener('DOMContentLoaded', function() {
+        // 强制激活列表视图按钮和容器
+        document.querySelector('.toggle-btn').classList.add('active');
+        document.getElementById('listView').classList.add('active');
+    });
+
+    // 切换视图功能（确保必须选中一个，且只能选一个）
+    function switchView(view) {
+        // 移除所有按钮的激活状态
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        // 激活当前点击的按钮
+        event.target.classList.add('active');
+
+        // 隐藏所有视图容器
+        document.querySelectorAll('.view-container').forEach(container => {
+            container.classList.remove('active');
+        });
+
+        // 显示选中的视图容器（确保必有一个视图显示）
+        const targetView = document.getElementById(view + 'View');
+        if (targetView) {
+            targetView.classList.add('active');
+        } else {
+            // 兜底：如果目标视图不存在，默认显示列表视图
+            document.getElementById('listView').classList.add('active');
+            document.querySelector('.toggle-btn').classList.add('active');
+        }
+    }
+
+    // ========== 冰箱食材添加核心功能 ==========
+    // 手动添加冰箱食材（带数量）
+    function addFridgeIngredient() {
+        // 获取输入值
+        const nameInput = document.getElementById('fridgeIngredientName');
+        const quantityInput = document.getElementById('fridgeIngredientQuantity');
+        const name = nameInput.value.trim();
+        const quantity = quantityInput.value.trim();
+
+        // 输入验证
+        if (!name) {
+            alert('请输入食材名称！');
+            nameInput.focus();
+            return;
+        }
+        if (!quantity) {
+            alert('请输入食材数量！');
+            quantityInput.focus();
+            return;
+        }
+
+        // 自动分类（简单版，可扩展更多分类）
+        const vegetableKeywords = ['番茄', '土豆', '黄瓜', '青菜', '辣椒', '胡萝卜', '西兰花'];
+        const meatKeywords = ['鸡蛋', '鸡肉', '牛肉', '猪肉', '鸡胸肉', '鱼肉'];
+        let category = '其他食材';
+        let icon = '🍱';
+
+        if (vegetableKeywords.includes(name)) {
+            category = '蔬菜水果';
+            icon = '🥦';
+        } else if (meatKeywords.includes(name)) {
+            category = '肉禽蛋奶';
+            icon = '🥩';
+        }
+
+        // 添加到列表视图
+        addToListView(name, quantity, category, icon);
+
+        // 添加到分类视图
+        addToCategoryView(name, quantity, category);
+
+        // 清空输入框
+        nameInput.value = '';
+        quantityInput.value = '';
+        nameInput.focus();
+
+        alert(`已添加 ${name}(${quantity}) 到冰箱`);
+    }
+
+    // 添加到列表视图
+    function addToListView(name, quantity, category, icon) {
+        const container = document.getElementById('fridgeListContainer');
+
+        // 检查是否已存在该食材
+        const existingItems = container.querySelectorAll('.ingredient-list-name');
+        for (let item of existingItems) {
+            if (item.textContent === name) {
+                alert(`${name} 已在冰箱中，可点击编辑数量`);
+                return;
+            }
+        }
+
+        // 创建新列表项
+        const newItem = document.createElement('div');
+        newItem.className = 'ingredient-list-item';
+        newItem.onclick = () => editIngredientByName(name);
+        newItem.innerHTML = `
+            <div class="ingredient-list-left">
+                <div class="ingredient-list-icon">${icon}</div>
+                <div class="ingredient-list-info">
+                    <div class="ingredient-list-name">${name}</div>
+                    <div class="ingredient-list-category">${category}</div>
+                </div>
+            </div>
+            <div class="ingredient-list-right">
+                <div class="ingredient-list-quantity">${quantity}</div>
+            </div>
+        `;
+
+        container.appendChild(newItem);
+    }
+
+    // 添加到分类视图
+    function addToCategoryView(name, quantity, category) {
+        let gridId = 'otherGrid';
+        let countId = 'otherCount';
+
+        if (category === '蔬菜水果') {
+            gridId = 'vegetableGrid';
+            countId = 'vegetableCount';
+        } else if (category === '肉禽蛋奶') {
+            gridId = 'meatGrid';
+            countId = 'meatCount';
+        }
+
+        const grid = document.getElementById(gridId);
+        if (!grid) return; // 防止其他分类暂无容器
+
+        // 检查是否已存在
+        const existingItems = grid.querySelectorAll('.ingredient-name');
+        for (let item of existingItems) {
+            if (item.textContent === name) {
+                return;
+            }
+        }
+
+        // 创建新卡片
+        const newCard = document.createElement('div');
+        newCard.className = 'ingredient-card';
+        newCard.onclick = function() { editIngredient(this); };
+        newCard.innerHTML = `
+            <div class="ingredient-name">${name}</div>
+            <div class="ingredient-quantity">${quantity}</div>
+        `;
+
+        grid.appendChild(newCard);
+
+        // 更新分类计数
+        updateCategoryCount(countId);
+    }
+
+    // 更新分类计数
+    function updateCategoryCount(countId) {
+        const countElement = document.getElementById(countId);
+        if (countElement) {
+            const currentCount = parseInt(countElement.textContent);
+            countElement.textContent = `${currentCount + 1}种`;
+        }
+    }
+
+    // ========== 原有编辑功能 ==========
+    function editIngredient(element) {
+        const name = element.querySelector('.ingredient-name').textContent;
+        const quantity = element.querySelector('.ingredient-quantity').textContent;
+        const newQuantity = prompt(`修改 ${name} 的数量:`, quantity);
+        if (newQuantity !== null && newQuantity.trim() !== '') {
+            element.querySelector('.ingredient-quantity').textContent = newQuantity;
+            updateListIngredientQuantity(name, newQuantity);
+        }
+    }
+
+    function editIngredientByName(name) {
+        const categoryItems = document.querySelectorAll('#categoryView .ingredient-name');
+        let quantity = '';
+
+        categoryItems.forEach(item => {
+            if (item.textContent === name) {
+                quantity = item.nextElementSibling.textContent;
+            }
+        });
+
+        const newQuantity = prompt(`修改 ${name} 的数量:`, quantity);
+        if (newQuantity !== null && newQuantity.trim() !== '') {
+            updateListIngredientQuantity(name, newQuantity);
+            updateCategoryIngredientQuantity(name, newQuantity);
+        }
+    }
+
+    function updateListIngredientQuantity(name, newQuantity) {
+        const listItems = document.querySelectorAll('#listView .ingredient-list-item');
+        listItems.forEach(item => {
+            const itemName = item.querySelector('.ingredient-list-name').textContent;
+            if (itemName === name) {
+                item.querySelector('.ingredient-list-quantity').textContent = newQuantity;
+            }
+        });
+    }
+
+    function updateCategoryIngredientQuantity(name, newQuantity) {
+        const categoryItems = document.querySelectorAll('#categoryView .ingredient-name');
+        categoryItems.forEach(item => {
+            if (item.textContent === name) {
+                item.nextElementSibling.textContent = newQuantity;
+            }
+        });
+    }
+
+    // ========== 采购清单功能 ==========
+    function addShoppingItem() {
+        const nameInput = document.getElementById('shoppingName');
+        const quantityInput = document.getElementById('shoppingQuantity');
+        const name = nameInput.value.trim();
+        const quantity = quantityInput.value.trim();
+
+        if (!name) {
+            alert('请输入食材名称！');
+            nameInput.focus();
+            return;
+        }
+        if (!quantity) {
+            alert('请输入食材数量！');
+            quantityInput.focus();
+            return;
+        }
+
+        const shoppingList = document.getElementById('shoppingList');
+        const newItem = document.createElement('div');
+        newItem.className = 'shopping-item';
+        newItem.innerHTML = `
+            <div class="shopping-item-left">
+                <span class="shopping-item-name">${name}</span>
+                <span class="shopping-item-quantity">${quantity}</span>
+            </div>
+            <div class="shopping-item-actions">
+                <button onclick="addToFridge('${name}', '${quantity}')">加入冰箱</button>
+                <button class="delete-btn" onclick="deleteShoppingItem(this)">删除</button>
+            </div>
+        `;
+
+        shoppingList.appendChild(newItem);
+        nameInput.value = '';
+        quantityInput.value = '';
+        nameInput.focus();
+    }
+
+    function deleteShoppingItem(btn) {
+        const item = btn.closest('.shopping-item');
+        const name = item.querySelector('.shopping-item-name').textContent;
+        if (confirm(`确定要删除采购项「${name}」吗？`)) {
+            item.remove();
+        }
+    }
+
+    function addToFridge(ingredient, quantity) {
+        // 自动分类
+        const vegetableKeywords = ['番茄', '土豆', '黄瓜', '小葱', '生姜', '青菜', '辣椒'];
+        const meatKeywords = ['鸡蛋', '鸡肉', '牛肉', '猪肉', '鸡胸肉'];
+        let category = '其他食材';
+        let icon = '🍱';
+
+        if (vegetableKeywords.includes(ingredient)) {
+            category = '蔬菜水果';
+            icon = '🥦';
+        } else if (meatKeywords.includes(ingredient)) {
+            category = '肉禽蛋奶';
+            icon = '🥩';
+        }
+
+        // 添加到冰箱
+        addToListView(ingredient, quantity, category, icon);
+        addToCategoryView(ingredient, quantity, category);
+
+        // 移除采购项
+        event.target.closest('.shopping-item').remove();
+        alert(`已将 ${ingredient}(${quantity}) 加入冰箱`);
+    }
+</script>
+</body>
+</html>

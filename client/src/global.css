@@ -1,0 +1,89 @@
+/* Critical Visibility Overrides */
+:root {
+  --brand-red: #e74c3c;
+  --brand-red-hover: #c0392b;
+}
+
+/* Force element visibility */
+button, .btn, input, .card {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-flex; /* Default for buttons */
+}
+
+div {
+  opacity: 1; /* Reset potential opacity issues */
+}
+
+/* Brand Color Utilities - Named classes are safer than arbitrary values */
+.bg-brand-red {
+  background-color: #e74c3c !important;
+  color: white !important;
+}
+
+.bg-brand-red:hover, .hover\:bg-brand-red-hover:hover {
+  background-color: #c0392b !important;
+}
+
+.text-brand-red {
+  color: #e74c3c !important;
+}
+
+.text-brand-red:hover, .hover\:text-brand-red-hover:hover {
+  color: #c0392b !important;
+}
+
+.border-brand-red {
+  border-color: #e74c3c !important;
+}
+
+.ring-brand-red {
+  --un-ring-color: #e74c3c !important;
+}
+
+/* Light background for active states */
+.bg-red-50, .bg-brand-red-50 {
+  background-color: #fef2f2 !important;
+}
+
+/* Shadow Utilities */
+.shadow-brand-red\/20, .shadow-brand-red-20 {
+  box-shadow: 0 4px 6px -1px rgba(231, 76, 60, 0.2), 0 2px 4px -1px rgba(231, 76, 60, 0.1) !important;
+}
+
+.shadow-brand-red\/30, .shadow-brand-red-30 {
+  box-shadow: 0 10px 15px -3px rgba(231, 76, 60, 0.3), 0 4px 6px -2px rgba(231, 76, 60, 0.15) !important;
+}
+
+/* Legacy/Tailwind Compatibility - Force these to map to brand color */
+.bg-red-500 { background-color: #e74c3c !important; color: white !important; }
+.bg-red-600 { background-color: #c0392b !important; }
+.text-red-500 { color: #e74c3c !important; }
+.text-red-600 { color: #c0392b !important; }
+.border-red-500 { border-color: #e74c3c !important; }
+
+/* Arbitrary Value Support - Catch-all for generated classes */
+[class*="bg-[#e74c3c]"], .bg-\[\#e74c3c\] {
+  background-color: #e74c3c !important;
+  color: white !important;
+}
+
+[class*="text-[#e74c3c]"], .text-\[\#e74c3c\] {
+  color: #e74c3c !important;
+}
+
+/* Login/Register Specifics */
+input:focus {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+}
+
+/* Button Reset */
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.7 !important;
+  cursor: not-allowed;
+}

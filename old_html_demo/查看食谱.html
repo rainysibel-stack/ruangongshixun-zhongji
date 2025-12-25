@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>菜谱详情 - 小小美食家</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: white;
+        }
+
+        /* 详情页头部 */
+        .detail-header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #333;
+            padding: 0.5rem;
+        }
+
+        /* 收藏按钮样式（和新增页保持一致） */
+        .detail-favorite-btn {
+            padding: 0.6rem 1.2rem;
+            background: #FFD700;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        .detail-favorite-btn.active {
+            background: #d3c04c;
+        }
+
+        .detail-favorite-btn:hover {
+            background: #d3c04c;
+        }
+
+        /* 详情页图片 */
+        .detail-image {
+            width: 100%;
+            height: 220px;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 1.5rem;
+        }
+
+        /* 详情页内容 */
+        .detail-content {
+            padding: 1.5rem;
+        }
+
+        .detail-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .detail-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .meta-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.8rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: #e74c3c;
+            border-radius: 2px;
+        }
+
+        /* 食材列表 */
+        .ingredients-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .ingredient-item {
+            background: #f8f9fa;
+            padding: 0.8rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .ingredient-name {
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .ingredient-amount {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        /* 步骤列表 */
+        .steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        /* 小贴士 */
+        .tips-box {
+            background: #fff8e1;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin-top: 1rem;
+        }
+
+        .tips-title {
+            font-weight: bold;
+            color: #ff8f00;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .tips-content {
+            font-size: 0.9rem;
+            color: #66512c;
+            line-height: 1.5;
+        }
+
+        /* 底部烹饪按钮栏 */
+        .detail-cook-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 90;
+        }
+
+        .detail-cook-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .detail-cook-btn:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+<!-- 详情页头部 -->
+<div class="detail-header">
+    <button class="back-btn" onclick="goBack()">← 返回</button>
+    <!-- 改为和新增页一致的Button样式 -->
+    <button class="detail-favorite-btn" id="detailFavoriteBtn" onclick="toggleDetailFavorite()">一键收藏</button>
+</div>
+
+<!-- 详情页图片 -->
+<div class="detail-image" id="detailImage">🍳 番茄炒蛋</div>
+
+<!-- 详情页内容 -->
+<div class="detail-content">
+    <h1 class="detail-title" id="detailTitle">番茄炒蛋</h1>
+
+    <!-- 基础信息行 -->
+    <div class="detail-meta-row">
+        <div class="detail-meta-item">
+            <span class="meta-label">分类：</span>
+            <span id="detailCategory">正餐</span>
+        </div>
+        <div class="detail-meta-item">
+            <span class="meta-label">耗时：</span>
+            <span id="detailTime">15分钟</span>
+        </div>
+        <div class="detail-meta-item">
+            <span class="meta-label">难度：</span>
+            <span id="detailDifficulty">⭐ 简单</span>
+        </div>
+        <div class="detail-meta-item">
+            <span class="meta-label">做过：</span>
+            <span id="detailCookedCount">3 次</span>
+        </div>
+    </div>
+
+    <!-- 食材部分 -->
+    <div class="detail-section">
+        <h2 class="section-title">食材准备</h2>
+        <div class="ingredients-list" id="detailIngredients">
+            <!-- 动态填充 -->
+        </div>
+    </div>
+
+    <!-- 步骤部分 -->
+    <div class="detail-section">
+        <h2 class="section-title">烹饪步骤</h2>
+        <div class="steps-list" id="detailSteps">
+            <!-- 动态填充 -->
+        </div>
+
+        <!-- 小贴士 -->
+        <div class="tips-box" id="detailTips">
+            <div class="tips-title">烹饪小贴士</div>
+            <div class="tips-content">
+                <!-- 动态填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 营养信息 -->
+    <div class="detail-section">
+        <h2 class="section-title">营养信息</h2>
+        <div class="detail-meta-row" id="detailNutrition">
+            <!-- 动态填充 -->
+        </div>
+    </div>
+</div>
+
+<!-- 底部烹饪按钮栏 -->
+<div class="detail-cook-bar">
+    <button class="detail-cook-btn" id="detailCookBtn" onclick="startCooking()">开始烹饪（计入次数）</button>
+</div>
+
+<script>
+    // 完整菜谱详情数据
+    const recipeDetailData = {
+        '番茄炒蛋': {
+            image: '🍳 番茄炒蛋',
+            title: '番茄炒蛋',
+            category: '正餐',
+            time: '15分钟',
+            difficulty: '⭐ 简单',
+            cookedCount: 3,
+            isFavorite: false,
+            ingredients: [
+                {name: '番茄', amount: '2个'},
+                {name: '鸡蛋', amount: '3个'},
+                {name: '小葱', amount: '2根'},
+                {name: '盐', amount: '适量'},
+                {name: '糖', amount: '1小勺'},
+                {name: '食用油', amount: '2大勺'}
+            ],
+            steps: [
+                '番茄洗净切块，小葱切葱花，鸡蛋打入碗中加少许盐打散备用。',
+                '锅中倒油烧热，倒入蛋液炒至定型后盛出备用。',
+                '锅中留少许底油，放入番茄块翻炒至出汁，加少许盐和糖调味。',
+                '倒入炒好的鸡蛋，翻炒均匀后撒上葱花即可出锅。'
+            ],
+            tips: '1. 番茄选熟透的会更出汁，口感更好；<br>2. 鸡蛋炒的时候不要炒太老，保持嫩滑口感；<br>3. 加少许糖可以中和番茄的酸味，提升整体口感。',
+            nutrition: [
+                {label: '热量', value: '约 280 大卡'},
+                {label: '蛋白质', value: '约 18g'},
+                {label: '维生素', value: '富含维生素C、维生素A'}
+            ]
+        },
+        '红烧肉': {
+            image: '🍖 红烧肉',
+            title: '红烧肉',
+            category: '正餐',
+            time: '60分钟',
+            difficulty: '⭐⭐⭐ 困难',
+            cookedCount: 1,
+            isFavorite: true,
+            ingredients: [
+                {name: '五花肉', amount: '500g'},
+                {name: '姜', amount: '3片'},
+                {name: '葱', amount: '2根'},
+                {name: '冰糖', amount: '15g'},
+                {name: '生抽', amount: '2大勺'},
+                {name: '老抽', amount: '1小勺'},
+                {name: '料酒', amount: '1大勺'},
+                {name: '八角', amount: '1个'},
+                {name: '桂皮', amount: '1小段'},
+                {name: '盐', amount: '适量'}
+            ],
+            steps: [
+                '五花肉切成2cm见方的块，冷水下锅，加姜片、料酒焯水，撇去浮沫后捞出沥干。',
+                '锅中放少许油，放入冰糖小火炒至融化呈焦糖色。',
+                '倒入五花肉翻炒均匀，让每块肉都裹上糖色。',
+                '加入生抽、老抽翻炒均匀，放入葱段、姜片、八角、桂皮炒出香味。',
+                '加入没过肉的热水，大火烧开后转小火慢炖40-50分钟。',
+                '最后开大火收汁，加少许盐调味，翻炒至汤汁浓稠即可。'
+            ],
+            tips: '1. 炒糖色时小火慢炒，避免炒糊发苦；<br>2. 炖肉时加热水，加冷水会导致肉质变柴；<br>3. 收汁时要不停翻炒，防止粘锅。',
+            nutrition: [
+                {label: '热量', value: '约 850 大卡'},
+                {label: '蛋白质', value: '约 30g'},
+                {label: '脂肪', value: '约 70g'}
+            ]
+        }
+    };
+
+    // 当前菜谱名称（从URL参数获取）
+    let currentRecipeName = '';
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取URL参数中的菜谱名称
+        const urlParams = new URLSearchParams(window.location.search);
+        currentRecipeName = decodeURIComponent(urlParams.get('recipe') || '');
+
+        // 校验菜谱是否存在
+        if (!currentRecipeName || !recipeDetailData[currentRecipeName]) {
+            alert('无效的菜谱名称！');
+            goBack();
+            return;
+        }
+
+        // 填充页面数据
+        renderRecipeDetail(currentRecipeName);
+    });
+
+    // 渲染菜谱详情
+    function renderRecipeDetail(recipeName) {
+        const recipe = recipeDetailData[recipeName];
+        const favoriteBtn = document.getElementById('detailFavoriteBtn');
+
+        // 基础信息
+        document.getElementById('detailImage').textContent = recipe.image;
+        document.getElementById('detailTitle').textContent = recipe.title;
+        document.getElementById('detailCategory').textContent = recipe.category;
+        document.getElementById('detailTime').textContent = recipe.time;
+        document.getElementById('detailDifficulty').textContent = recipe.difficulty;
+
+        // 从localStorage获取烹饪次数（优先取本地存储，无则用默认值）
+        const savedCount = localStorage.getItem(`cooked_${recipeName}`);
+        const cookedCount = savedCount ? parseInt(savedCount) : recipe.cookedCount;
+        document.getElementById('detailCookedCount').textContent = `${cookedCount} 次`;
+
+        // 收藏状态（从localStorage恢复）
+        const savedFavorite = localStorage.getItem(`favorite_${recipeName}`) === 'true';
+        recipeDetailData[recipeName].isFavorite = savedFavorite;
+
+        // 更新收藏按钮样式和文本
+        if (savedFavorite) {
+            favoriteBtn.classList.add('active');
+            favoriteBtn.textContent = '已收藏';
+        } else {
+            favoriteBtn.classList.remove('active');
+            favoriteBtn.textContent = '一键收藏';
+        }
+
+        // 填充食材列表
+        const ingredientsContainer = document.getElementById('detailIngredients');
+        ingredientsContainer.innerHTML = '';
+        recipe.ingredients.forEach(ing => {
+            ingredientsContainer.innerHTML += `
+                <div class="ingredient-item">
+                    <span class="ingredient-name">${ing.name}</span>
+                    <span class="ingredient-amount">${ing.amount}</span>
+                </div>
+            `;
+        });
+
+        // 填充步骤列表
+        const stepsContainer = document.getElementById('detailSteps');
+        stepsContainer.innerHTML = '';
+        recipe.steps.forEach((step, index) => {
+            stepsContainer.innerHTML += `
+                <div class="step-item">
+                    <div class="step-number">${index + 1}</div>
+                    <div class="step-content">${step}</div>
+                </div>
+            `;
+        });
+
+        // 填充小贴士
+        document.querySelector('#detailTips .tips-content').innerHTML = recipe.tips;
+
+        // 填充营养信息
+        const nutritionContainer = document.getElementById('detailNutrition');
+        nutritionContainer.innerHTML = '';
+        recipe.nutrition.forEach(item => {
+            nutritionContainer.innerHTML += `
+                <div class="detail-meta-item">
+                    <span class="meta-label">${item.label}：</span>
+                    <span>${item.value}</span>
+                </div>
+            `;
+        });
+    }
+
+    // 返回列表页
+    function goBack() {
+        window.location.href = '我的食谱.html';
+    }
+
+    // 切换收藏状态
+    function toggleDetailFavorite() {
+        if (!currentRecipeName) return;
+        const recipe = recipeDetailData[currentRecipeName];
+        const favoriteBtn = document.getElementById('detailFavoriteBtn');
+
+        // 切换收藏状态
+        recipe.isFavorite = !recipe.isFavorite;
+
+        // 保存到本地存储
+        localStorage.setItem(`favorite_${currentRecipeName}`, recipe.isFavorite);
+
+        // 更新按钮样式和文本
+        if (recipe.isFavorite) {
+            favoriteBtn.classList.add('active');
+            favoriteBtn.textContent = '已收藏';
+            alert(`已收藏「${currentRecipeName}」到我的收藏夹！`);
+        } else {
+            favoriteBtn.classList.remove('active');
+            favoriteBtn.textContent = '一键收藏';
+            alert(`已取消收藏「${currentRecipeName}」`);
+        }
+    }
+
+    // 开始烹饪（计入次数）
+    function startCooking() {
+        if (!currentRecipeName) return;
+
+        // 获取当前次数并+1
+        const savedCount = localStorage.getItem(`cooked_${currentRecipeName}`);
+        let newCount = savedCount ? parseInt(savedCount) + 1 : recipeDetailData[currentRecipeName].cookedCount + 1;
+
+        // 保存到localStorage
+        localStorage.setItem(`cooked_${currentRecipeName}`, newCount);
+
+        // 更新页面显示
+        document.getElementById('detailCookedCount').textContent = `${newCount} 次`;
+
+        alert(`开始烹饪：${currentRecipeName}\n\n已计入烹饪次数，当前次数：${newCount} 次！`);
+    }
+</script>
+</body>
+</html>

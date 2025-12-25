@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小小美食家 - 注册</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body class="bg-cover bg-center min-h-screen" style="background-image: url('https://picsum.photos/id/42/1200/800');">
+<!-- 半透明遮罩 -->
+<div class="bg-black/30 min-h-screen flex items-center justify-center p-4">
+    <!-- 注册卡片 -->
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 md:p-8">
+        <!-- Logo -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-red-600">
+                <i class="fa fa-cutlery mr-2"></i>小小美食家
+            </h1>
+            <p class="text-gray-500 mt-1">创建你的美食账号</p>
+        </div>
+
+        <!-- 注册表单 -->
+        <form>
+            <!-- 用户名 -->
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-1" for="reg-username">用户名</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <i class="fa fa-user"></i>
+                    </span>
+                    <input type="text" id="reg-username"
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                           placeholder="请输入用户名（3-16位）">
+                </div>
+            </div>
+
+            <!-- 电话/ID号 -->
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-1" for="reg-phone">电话/ID号</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <i class="fa fa-phone"></i>
+                    </span>
+                    <input type="text" id="reg-phone"
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                           placeholder="请输入电话或ID号">
+                </div>
+            </div>
+
+            <!-- 密码 -->
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-1" for="reg-password">密码</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <i class="fa fa-lock"></i>
+                    </span>
+                    <input type="password" id="reg-password"
+                           class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                           placeholder="请输入密码（6-20位）">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" id="toggleRegPwd">
+                        <i class="fa fa-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 确认密码 -->
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-1" for="reg-confirm-pwd">确认密码</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <i class="fa fa-lock"></i>
+                    </span>
+                    <input type="password" id="reg-confirm-pwd"
+                           class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                           placeholder="请再次输入密码">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" id="toggleConfirmPwd">
+                        <i class="fa fa-eye-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 同意协议 -->
+            <div class="flex items-center mb-6">
+                <input type="checkbox" id="agree-protocol" class="mr-2 h-4 w-4 text-red-600">
+                <label for="agree-protocol" class="text-gray-600 text-sm">
+                    我已阅读并同意<a href="#" class="text-red-600 hover:underline">《用户协议》</a>和<a href="#" class="text-red-600 hover:underline">《隐私政策》</a>
+                </label>
+            </div>
+
+            <!-- 注册按钮 -->
+            <button type="button" class="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition" id="registerBtn">
+                注册账号
+            </button>
+
+            <!-- 登录入口 -->
+            <div class="text-center mt-4">
+                <span class="text-gray-600">已有账号？</span>
+                <button type="button" class="text-red-600 font-medium ml-1 hover:underline" onclick="window.location.href='login.html'">立即登录</button>
+            </div>
+
+            <!-- 游客模式 -->
+            <div class="text-center mt-6">
+                <button type="button" class="text-gray-500 text-sm hover:text-red-600 transition" onclick="window.location.href='我的食谱.html'">
+                    <i class="fa fa-user-o mr-1"></i>游客模式体验
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // 密码显示/隐藏切换 - 注册密码
+    const toggleRegPwd = document.getElementById('toggleRegPwd');
+    const regPassword = document.getElementById('reg-password');
+    toggleRegPwd.addEventListener('click', () => {
+        const type = regPassword.type === 'password' ? 'text' : 'password';
+        regPassword.type = type;
+        toggleRegPwd.innerHTML = type === 'password' ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
+    });
+
+    // 密码显示/隐藏切换 - 确认密码
+    const toggleConfirmPwd = document.getElementById('toggleConfirmPwd');
+    const confirmPwd = document.getElementById('reg-confirm-pwd');
+    toggleConfirmPwd.addEventListener('click', () => {
+        const type = confirmPwd.type === 'password' ? 'text' : 'password';
+        confirmPwd.type = type;
+        toggleConfirmPwd.innerHTML = type === 'password' ? '<i class="fa fa-eye-slash"></i>' : '<i class="fa fa-eye"></i>';
+    });
+
+    // 注册表单验证
+    document.getElementById('registerBtn').addEventListener('click', function() {
+        const username = document.getElementById('reg-username').value.trim();
+        const phone = document.getElementById('reg-phone').value.trim();
+        const password = document.getElementById('reg-password').value.trim();
+        const confirmPwd = document.getElementById('reg-confirm-pwd').value.trim();
+        const agreeProtocol = document.getElementById('agree-protocol').checked;
+
+        // 验证用户名
+        if (!username) {
+            alert('请输入用户名');
+            return;
+        }
+        if (username.length < 3 || username.length > 16) {
+            alert('用户名长度需在3-16位之间');
+            return;
+        }
+
+        // 验证电话/ID号
+        if (!phone) {
+            alert('请输入电话/ID号');
+            return;
+        }
+
+        // 验证密码
+        if (!password) {
+            alert('请输入密码');
+            return;
+        }
+        if (password.length < 6 || password.length > 20) {
+            alert('密码长度需在6-20位之间');
+            return;
+        }
+
+        // 验证确认密码
+        if (password !== confirmPwd) {
+            alert('两次输入的密码不一致');
+            return;
+        }
+
+        // 验证协议同意
+        if (!agreeProtocol) {
+            alert('请阅读并同意用户协议和隐私政策');
+            return;
+        }
+
+        // 模拟注册成功
+        console.log('注册信息:', { username, phone, password });
+        alert('注册成功！即将跳转到登录页面');
+        // 实际应用中这里应该调用注册API
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
+    });
+</script>
+</body>
+</html>
